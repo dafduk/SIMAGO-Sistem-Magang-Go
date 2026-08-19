@@ -1,4 +1,4 @@
-FROM ghcr.io/docker-library/php:8.3-fpm-alpine
+FROM quay.io/bitnami/php-fpm:8.3
 
 # Install dependensi sistem dan ekstensi PHP
 RUN apt-get update && apt-get install -y \
