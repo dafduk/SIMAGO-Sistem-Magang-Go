@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install PHP 8.3 dan dependensi dari repository Ubuntu/Ondrej
+# 1. Install PHP 8.3 dan tools dasar dari Ubuntu / PPA Ondrej
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl unzip git zip \
@@ -19,18 +19,20 @@ RUN apt-get update && apt-get install -y \
     php8.3-zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# 2. Install Composer LANGSUNG via script (Bypass docker.io/library/composer)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www
 
 COPY . .
 
+# 3. Install dependensi Laravel
 RUN composer install --no-dev --optimize-autoloader || true
 
+# 4. Atur permission folder storage
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 9000
 
-# Jalankan PHP-FPM 8.3
+# 5. Jalankan PHP-FPM
 CMD ["php-fpm8.3", "-F"]
